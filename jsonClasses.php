@@ -108,6 +108,12 @@ class JsonParam implements jsonParamInterface
     public $values = [];
     public $attributes = [];
 
+    private $reservedKeywords = ['name', 'type', 'label', 'values'];
+    private $paramKeywordToAttribute = [
+        'minvalue' => 'min',
+        'maxvalue' => 'max',
+    ];
+
     /**
      * @param array $param
      * @throws jsonSpecException
@@ -127,8 +133,16 @@ class JsonParam implements jsonParamInterface
             $this->values = $param['values'];
 
         // Attributes are the keys of the array minus a few reserved keywords. Strtolower for consistency.
-        $this->attributes = array_diff_key($param, array_flip(['name', 'type', 'label', 'values']));
+        $this->attributes = array_diff_key($param, array_flip($this->reservedKeywords));
         $this->attributes = array_change_key_case($this->attributes);
+
+        // Convert certain param keywords to html attributes
+        foreach ($this->attributes as $key => $value) {
+            if (isset($this->paramKeywordToAttribute[$key])) {
+                $this->attributes[$this->paramKeywordToAttribute[$key]] = $value;
+                unset($this->attributes[$key]);
+            }
+        }
     }
 
     /**
@@ -165,6 +179,10 @@ class JsonParam implements jsonParamInterface
                 }
                 return true;
                 break;
+            case 'date':
+                if ($this->isRequiredCheck($postData)) {
+                    return (bool)strtotime($postData[$this->name]);
+                }
             default:
                 return isset($postData[$this->name]);
         }
@@ -235,6 +253,13 @@ class JsonParam implements jsonParamInterface
                 $this->attachAttributes($input);
                 $input->setAttribute('name', $this->name);
                 break;
+            case 'date':
+                $input = $form->appendChild(new \DOMElement('input'));
+                $this->attachAttributes($input);
+                $input->setAttribute('type', 'date');
+                $input->setAttribute('name', $this->name);
+                $input->setAttribute('placeholder', $this->name);
+                break;
         }
     }
 
@@ -256,6 +281,12 @@ class JsonParam implements jsonParamInterface
             },
             'minlength' => function($data, $attributeValue) {
                 return strlen($data) >= $attributeValue;
+            },
+            'min' => function($data, $attributeValue) {
+                return (int)$data >= $attributeValue;
+            },
+            'max' => function($data, $attributeValue) {
+                return (int)$data <= $attributeValue;
             },
         ];
 
