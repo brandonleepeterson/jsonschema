@@ -1,0 +1,221 @@
+<html>
+<head>
+    <title>Test</title>
+
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+    <style>
+        body{
+            font-family:monospace;
+            color:#60FF60;
+            background-color:black;
+            font-size:120%;
+        }
+        .testcase{
+            display:none;
+        }
+        #result, #spec{
+            margin:20px;
+            padding:10px;
+            border-radius: 5px;
+            border:1px solid green;
+        }
+    </style>
+
+    <script>
+        var specData;
+
+        $(document).ready(function() {
+            var samples = [
+                {
+                    title:"Comment Form",
+                    desc:"Make a comment on the blog post!",
+                    params:[
+                        {
+                            type: 'text',
+                            maxLength: 100,
+                            name: 'title'
+                        },
+                        {
+                            type: 'email',
+                            name: 'email'
+                        },
+                        {
+                            type:'textarea',
+                            name:'body'
+                        },
+                        {
+                            type:'checkbox',
+                            name:'subscribe',
+                            label:'mail me when someone comments on my comment!'
+                        }
+                    ]
+                },
+                {
+                    title:"Car Order Form",
+                    desc:"Choose your car!",
+                    params:[
+                        {
+                            type:'select',
+                            values:['red','blue','green','black','white','taupe'],
+                            name: 'color'
+                        },
+                        {
+                            type: 'checkbox',
+                            values:['fog-lights','radio','a-c','wheels','headlights'],
+                            name: 'options'
+                        },
+                        {
+                            type:'string',
+                            minLength:7,
+                            maxLength:7,
+                            name:'vanityPlate',
+                            optional:true
+                        },
+                        {
+                            type:'int',
+                            name:'price',
+                        }
+                    ]
+                },
+                {
+                    title:"New User Creator",
+                    desc:"Create a new user account",
+                    params:[
+                        {
+                            type:'string',
+                            maxLength:20,
+                            name:'fname',
+                            label:'First Name'
+                        },
+                        {
+                            type:'string',
+                            maxLength:20,
+                            name:'lname',
+                            label:'Last Name'
+                        },
+                        {
+                            type:'date',
+                            name:'dob',
+                            label:'Date of Birth'
+                        },
+                        {
+                            type:'email',
+                            multiple:true,
+                            maxCount:4,
+                            name:'emails',
+                            label:'Email Addresses'
+                        },
+                        {
+                            type: 'string',
+                            name: 'addr1',
+                            label: 'Street Address'
+                        },
+                        {
+                            type: 'string',
+                            name: 'city'
+                        },
+                        {
+                            type: 'state',
+                            name: 'state',
+                        },
+                        {
+                            type: 'int',
+                            name: 'zipcode',
+                            maxValue: 99999,
+                            minValue: 0,
+                            label: 'ZIP'
+                        },
+                    ]
+                }
+            ]
+
+            $("button").on("click", function($e){
+                var specIndex = $($e.target).data('sample');
+                specData = samples[specIndex-1];
+
+                $("#spec").html("Sample spec "+(specIndex)+" looks like: <br>"+JSON.stringify(specData));
+                console.log(specData);
+                $.post("json.php", { specData: specData })
+                    .done(function (data) {
+                       $('#result').html(decodeURI(data.html));
+                    }
+                );
+            });
+
+            $("#result").on("submit", "form", function($e) {
+                $e.preventDefault();
+                $.post("jsonPost.php", { specData: specData, form: $('#form-json').serialize() })
+                    .done(function (data) {
+                        $('#post-result').html(data.message + "<hr>" + data.invalidParams);
+                    }
+                );
+                return false;
+            });
+        });
+
+    </script>
+
+</head>
+<body>
+<h3>Hello World!</h3>
+Your task is to flesh out the javascript formBuilder function to generate HTML forms dynamically from a JSON object
+<ul>
+    <li>When submitted, all inputs should be validated according to the requirements defined in the input spec</li>
+    <li>Click run to execute the current function with one of the sample specs</li>
+    <li>Non-standard types (state, e.g.) can be supported with appropriate inputs if time allows</li>
+    <li>The focus here is not to demonstrate a deep understanding of Javascript, but to build a tool with high code quality - well-organized, maintainable, highly flexible, modular.</li>
+    <li>Extra credit: Extract the form spec from the php style doc blocks in this html instead of using the JSON objects</li>
+</ul>
+
+<div>
+    <button data-sample='1'>Run 1</button>
+    <button data-sample='2'>Run 2</button>
+    <button data-sample='3'>Run 3</button>
+</div>
+
+<hr>
+<div id='spec'>
+    <i>This div will display the currently-processed spec</i>
+</div>
+<br>Output:
+<div id='result'>
+    <i>I sure wish I had a cool html form in me...</i>
+</div>
+<div id='post-result'>
+    <i>I sure wish I had a cool server response in me...</i>
+</div>
+<!--here are some test cases in docblock form-->
+<div class='testcase' id='1'>
+    /** Comment Form
+    * Make a comment on the blog post!
+    * @param  string[100] title
+    * @param  email email
+    * @param  text body
+    * @param  bool subscribe Email me when someone comments on my comment!
+    */
+</div>
+<div class='testcase' id='2'>
+    /** Car Order Form
+    * Choose your car!
+    * @param  select[red,blue,green,black,white,taupe] color
+    * @param  checkbox[fog-lights,radio,a-c,wheels,headlights] options
+    * @param  string[7] [vanityPlate]
+    * @param  int price
+    */
+</div>
+<div class='testcase' id='3'>
+    /** New User Creator
+    * Create a new user account
+    * @param  string fname First Name
+    * @param  string lname Last Name
+    * @param  date dob Date of Birth
+    * @param  email{1,4} emails
+    * @param  string [addr1] Street Address
+    * @param  string[40] city
+    * @param  state state
+    * @param  int[0-99999] zipcode ZIP
+    */
+</div>
+</body>
+</html>
