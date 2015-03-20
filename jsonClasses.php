@@ -131,6 +131,8 @@ class JsonParam implements jsonParamInterface
             $this->label = $param['label'];
         if (isset($param['values']) && is_array($param['values']))
             $this->values = $param['values'];
+        elseif ($this->type == 'state') // Populate state type with values from states function.
+            $this->values = statesList();
 
         // Attributes are the keys of the array minus a few reserved keywords. Strtolower for consistency.
         $this->attributes = array_diff_key($param, array_flip($this->reservedKeywords));
@@ -183,6 +185,12 @@ class JsonParam implements jsonParamInterface
                 if ($this->isRequiredCheck($postData)) {
                     return (bool)strtotime($postData[$this->name]);
                 }
+                break;
+            case 'state':
+                $states = statesList();
+                if (in_array($postData[$this->type], $states))
+                    return true;
+                break;
             default:
                 return isset($postData[$this->name]);
         }
@@ -225,6 +233,7 @@ class JsonParam implements jsonParamInterface
                 }
                 break;
 
+            case 'state':
             case 'select':
                 if (empty($this->values)) throw new jsonSpecException("select's must have values");
                 $input = $form->appendChild(new \DOMElement('select'));
@@ -332,4 +341,62 @@ class JsonParam implements jsonParamInterface
             }
         }
     }
+}
+
+function statesList() { // TODO: from db
+    $states = [
+        'AL'=>"Alabama",
+        'AK'=>"Alaska",
+        'AZ'=>"Arizona",
+        'AR'=>"Arkansas",
+        'CA'=>"California",
+        'CO'=>"Colorado",
+        'CT'=>"Connecticut",
+        'DE'=>"Delaware",
+        'DC'=>"District Of Columbia",
+        'FL'=>"Florida",
+        'GA'=>"Georgia",
+        'HI'=>"Hawaii",
+        'ID'=>"Idaho",
+        'IL'=>"Illinois",
+        'IN'=>"Indiana",
+        'IA'=>"Iowa",
+        'KS'=>"Kansas",
+        'KY'=>"Kentucky",
+        'LA'=>"Louisiana",
+        'ME'=>"Maine",
+        'MD'=>"Maryland",
+        'MA'=>"Massachusetts",
+        'MI'=>"Michigan",
+        'MN'=>"Minnesota",
+        'MS'=>"Mississippi",
+        'MO'=>"Missouri",
+        'MT'=>"Montana",
+        'NE'=>"Nebraska",
+        'NV'=>"Nevada",
+        'NH'=>"New Hampshire",
+        'NJ'=>"New Jersey",
+        'NM'=>"New Mexico",
+        'NY'=>"New York",
+        'NC'=>"North Carolina",
+        'ND'=>"North Dakota",
+        'OH'=>"Ohio",
+        'OK'=>"Oklahoma",
+        'OR'=>"Oregon",
+        'PA'=>"Pennsylvania",
+        'RI'=>"Rhode Island",
+        'SC'=>"South Carolina",
+        'SD'=>"South Dakota",
+        'TN'=>"Tennessee",
+        'TX'=>"Texas",
+        'UT'=>"Utah",
+        'VT'=>"Vermont",
+        'VA'=>"Virginia",
+        'WA'=>"Washington",
+        'WV'=>"West Virginia",
+        'WI'=>"Wisconsin",
+        'WY'=>"Wyoming"
+    ];
+
+    return $states;
 }
