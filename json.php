@@ -1,12 +1,12 @@
 <?php
 
-require('jsonClasses.php');
+require('common.php');
 
 $specData = $_POST['specData'];
 header('Content-Type: application/json');
 
 try {
-    $jsonSpec = new orecrush\json\JsonSpec($specData);
+    $jsonSpec = new JsonSpec($specData);
     $form = $jsonSpec->toForm();
 
     echo json_encode([

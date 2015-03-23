@@ -1,6 +1,6 @@
 <?php
 
-require('jsonClasses.php');
+require('common.php');
 
 // Form Data.
 $data = [];
@@ -10,7 +10,7 @@ $specData = $_POST['specData'];
 header('Content-Type: application/json');
 
 try {
-    $jsonSpec = new orecrush\json\JsonSpec($specData);
+    $jsonSpec = new JsonSpec($specData);
 
     $message = "Valid!";
     $invalidParams = [];
