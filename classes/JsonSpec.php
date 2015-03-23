@@ -38,7 +38,7 @@ class JsonSpec implements JsonSpecInterface
     {
         $valid = true;
         foreach ($this->params as $param) {
-            if (!$param->validate($postData)) {
+            if (!$param->_validate($postData)) {
                 $valid = false;
                 $this->invalidParams[] = $param->name;
             }

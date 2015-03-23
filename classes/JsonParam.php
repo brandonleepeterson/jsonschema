@@ -65,6 +65,20 @@ abstract class JsonParam implements JsonParamInterface
     }
 
     /**
+     * Base validate class that must be called.
+     *
+     * @param array $postData
+     * @return bool
+     */
+    public function _validate(array $postData)
+    {
+        if (!$this->validateAttributes($postData))
+            return false;
+
+        return $this->validate($postData);
+    }
+
+    /**
      * Validate certain html attributes server side.
      *
      * @param array $postData
