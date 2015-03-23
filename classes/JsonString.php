@@ -8,6 +8,8 @@ class JsonString extends JsonParam
         if ($this->isRequiredCheck($postData)) {
             return is_string($postData[$this->name]);
         }
+
+        return false;
     }
 
     public function insertElements(\DOMDocument &$dom, \DOMElement &$form)

@@ -6,10 +6,10 @@ class JsonSelect extends JsonParam
 
     public function validate(array $postData)
     {
-        if (empty($this->values))
-            return false;
+        if (!empty($this->values) && is_array($this->values))
+            return true;
 
-        return true;
+        return false;
     }
 
     public function insertElements(\DOMDocument &$dom, \DOMElement &$form)
